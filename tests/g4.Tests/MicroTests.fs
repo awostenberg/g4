@@ -27,14 +27,14 @@ let jsmith = {firstName="john"
               dateOfBirth=DateTime.Parse("25-Dec-1985")}
 
 [<Fact>]
-let ``by gender female first``() =
+let ``compare people by gender, female first``() =
     Assert.Equal(Eq,compareGenderThenLastName jsmith jsmith)
     Assert.Equal(Gt,compareGenderThenLastName jsmith {jsmith with gender=Female})
     Assert.Equal(Lt,compareGenderThenLastName {jsmith with gender=Female} jsmith)
 
 
 [<Fact>]
-let ``by gender female first then last name asc``() =
+let ``compare people by gender, female first, then last name ascending``() =
     Assert.Equal(Eq,compareGenderThenLastName jsmith jsmith)
     Assert.Equal(Lt,compareGenderThenLastName jsmith {jsmith with lastName="zurich"})
     Assert.Equal(Gt,compareGenderThenLastName jsmith {jsmith with lastName="zurich";gender=Female})
