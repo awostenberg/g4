@@ -48,6 +48,14 @@ let shouldEqual expected actual =
 
 let shouldContain (expected : string) (actual : string) =
     Assert.True(actual.Contains expected)
+    
+let shouldOrderBy (a:string,b:string) (actual: string) =
+    Assert.True(actual.Contains a,(sprintf "expect %s" a))
+    Assert.True(actual.Contains b,(sprintf "expect %s" b) )
+    let a',b' = actual.IndexOf a, actual.IndexOf b
+    Assert.True(a'<b',(sprintf "expect %s before %s" a b))
+    
+    
 
 // ---------------------------------
 // Tests
@@ -85,3 +93,19 @@ let ``Route which doesn't exist returns 404 Page not found`` () =
     |> isStatus HttpStatusCode.NotFound
     |> readText
     |> shouldEqual "Not Found"
+    
+[<Fact>] 
+let ``records by gender`` () =
+    let people = ["smith|john|m|blue|12/25/1985";
+                  "smythe|jane|f|green|12/25/1985" ]
+                 |> List.map (Models.Piped >> Models.toPerson)
+    g4.App.people <- people
+    
+    use server = new TestServer(createHost())
+    use client = server.CreateClient()
+    
+    client
+    |> httpGet "/records/gender"
+    |> ensureSuccess
+    |> readText
+    |> shouldOrderBy ("smythe","smith")

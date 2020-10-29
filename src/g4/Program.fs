@@ -14,6 +14,9 @@ open Giraffe
 // Models
 // ---------------------------------
 
+
+let mutable people:Models.Person list = []
+
 type Message =
     {
         Text : string
@@ -56,12 +59,17 @@ let indexHandler (name : string) =
     let view      = Views.index model
     htmlView view
 
+let byGenderThenLastName ctx =
+    json (Models.orderByGenderThenLastName people) ctx
+
 let webApp =
     choose [
         GET >=>
             choose [
                 route "/" >=> indexHandler "world"
                 routef "/hello/%s" indexHandler
+                route "/records/gender" >=> byGenderThenLastName
+
             ]
         setStatusCode 404 >=> text "Not Found" ]
 
