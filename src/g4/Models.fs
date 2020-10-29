@@ -2,6 +2,7 @@ module Models
 open System
 
 type Gender = Female|Male
+
 type Person = {
     lastName: string
     firstName: string
@@ -28,5 +29,12 @@ let compareGenderThenLastName a b =
     match compare a.gender b.gender with
     | Eq -> compare a.lastName b.lastName
     | other -> other
+let comparisonToInt comparison =
+    match comparison with
+    | Lt -> -1
+    | Eq -> 0
+    | Gt -> 1
+let compareGenderThenLastName' p1 p2 = compareGenderThenLastName p1 p2 |> comparisonToInt
 
+let orderByGenderThenLastName people = people |> List.sortWith compareGenderThenLastName'
 

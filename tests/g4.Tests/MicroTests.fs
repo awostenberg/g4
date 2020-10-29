@@ -40,11 +40,15 @@ let ``by gender female first then last name asc``() =
     Assert.Equal(Gt,compareGenderThenLastName jsmith {jsmith with lastName="zurich";gender=Female})
     Assert.Equal(Gt,compareGenderThenLastName jsmith {jsmith with lastName="adams"})
 
+[<Fact>] let ``comparison to int``() =
+        Assert.Equal(-1,comparisonToInt Lt)
+        Assert.Equal(0,comparisonToInt Eq)
+        Assert.Equal(1,comparisonToInt Gt)
 
-        
-        
-       
-        
-        
+[<Fact>] let ``sort by gender then last name``() =
+    let jane = {jsmith with firstName="jane";gender=Female}
+    let result = orderByGenderThenLastName [jsmith;jane]
+    Assert.Equal(jane,result.Head)
+
         
      
