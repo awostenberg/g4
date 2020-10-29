@@ -22,6 +22,11 @@ let toPerson s =
                   dateOfBirth=DateTime.Parse(tokens.[4])}
                  
 
-
+type Comparison = Lt|Eq|Gt
+let  compare a b = if a = b then Eq else (if a < b then Lt else Gt)
+let compareGenderThenLastName a b =
+    match compare a.gender b.gender with
+    | Eq -> compare a.lastName b.lastName
+    | other -> other
 
 
