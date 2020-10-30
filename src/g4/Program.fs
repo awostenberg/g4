@@ -69,6 +69,8 @@ let byGenderThenLastName ctx =
 
 let byBirthDateAscending ctx =
     json (Models.orderByBirthDateAscending people) ctx
+let byNameDescending ctx =
+    json (Models.orderByLastNameDescending people) ctx
 
 let addPerson  =
     fun (next:HttpFunc) (ctx:HttpContext) ->
@@ -86,6 +88,7 @@ let webApp =
                 routef "/hello/%s" indexHandler
                 route "/records/gender" >=> byGenderThenLastName
                 route "/records/birthdate" >=> byBirthDateAscending
+                route "/records/name" >=> byNameDescending
             ]
         POST >=>
             choose [

@@ -148,4 +148,18 @@ let ``records by birth date ascending -- GET /records/birthdate``() =
     |> readText
     |> shouldOrderBy ("elder","younger")
     
-    
+[<Fact>]
+ let ``records by last name descending -- GET /records/name``() =
+     let people = ["adams|abe|f|green|12/25/1930"
+                   "zigbee|abe|f|green|12/25/1930"; ]
+                  |> List.map (Models.Piped >> Models.toPerson)
+     g4.App.people <- people        //todo thread safety
+     
+     use server = new TestServer(createHost())
+     use client = server.CreateClient()
+     
+     client
+     |> httpGet "/records/name"
+     |> ensureSuccess
+     |> readText
+     |> shouldOrderBy ("zigbee","adams")
