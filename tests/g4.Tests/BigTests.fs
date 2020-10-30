@@ -9,6 +9,7 @@ open Microsoft.AspNetCore.Builder
 open Microsoft.AspNetCore.Hosting
 open Microsoft.AspNetCore.TestHost
 open Microsoft.Extensions.DependencyInjection
+open FSharp.Control.Tasks.V2.ContextInsensitive
 
 // ---------------------------------
 // Helper functions (extend as you need)
@@ -29,6 +30,19 @@ let httpGet (path : string) (client : HttpClient) =
     path
     |> client.GetAsync
     |> runTask
+ 
+let httpPostJson (path : string) (client : HttpClient) (json: string) =
+    let sc = new StringContent(json,System.Text.Encoding.UTF8, "application/json")   
+    client.PostAsync(path,sc)
+    |> runTask
+    
+    //mabye try http://fssnip.net/a7/title/Send-HTTP-POST-request
+
+    
+    
+
+ 
+
 
 let isStatus (code : HttpStatusCode) (response : HttpResponseMessage) =
     Assert.Equal(code, response.StatusCode)
@@ -47,7 +61,7 @@ let shouldEqual expected actual =
     Assert.Equal(expected, actual)
 
 let shouldContain (expected : string) (actual : string) =
-    Assert.True(actual.Contains expected)
+    Assert.True(actual.Contains expected,sprintf "expected /%s/ \nin string /%s/" expected actual)
     
 let shouldOrderBy (a:string,b:string) (actual: string) =
     Assert.True(actual.Contains a,(sprintf "expect %s" a))
@@ -109,3 +123,17 @@ let ``records by gender`` () =
     |> ensureSuccess
     |> readText
     |> shouldOrderBy ("smythe","smith")
+
+[<Fact>] 
+let ``add person -- post /record`` () =
+    use server = new TestServer(createHost())
+    use client = server.CreateClient()
+    g4.App.people <- []        //todo thread safety
+    let jsonPayload = """{"case":"Piped","fields":["piper|peter|m|blue|12/25/1984"]}"""
+    
+    httpPostJson "/records" client jsonPayload
+    |> ensureSuccess
+    |> readText
+    |> shouldContain "peter"
+    Assert.True(g4.App.people.Length=1,sprintf "Expected one person have %d" g4.App.people.Length)
+    

@@ -9,6 +9,10 @@ open Microsoft.Extensions.Hosting
 open Microsoft.Extensions.Logging
 open Microsoft.Extensions.DependencyInjection
 open Giraffe
+open FSharp.Control.Tasks.V2.ContextInsensitive
+
+open Microsoft.AspNetCore.Http
+
 
 // ---------------------------------
 // Models
@@ -19,6 +23,7 @@ let mutable people:Models.Person list = []
 
 type Message =
     {
+        Id : int
         Text : string
     }
 
@@ -55,13 +60,23 @@ module Views =
 
 let indexHandler (name : string) =
     let greetings = sprintf "Hello %s, from Giraffe!" name
-    let model     = { Text = greetings }
+    let model     = {Id=42;Text = greetings }
     let view      = Views.index model
     htmlView view
 
 let byGenderThenLastName ctx =
     json (Models.orderByGenderThenLastName people) ctx
 
+
+type InputFormat = {delimiter:string; value:string}    //preferable to Models.InputType?
+let addPerson  =
+    fun (next:HttpFunc) (ctx:HttpContext) ->
+        task {
+            let! description = ctx.BindModelAsync<Models.InputType>() //todo brittle
+            let person = Models.toPerson description 
+            people <- person::people    //todo thread safety
+            return! (json person) next ctx
+        }
 let webApp =
     choose [
         GET >=>
@@ -69,7 +84,12 @@ let webApp =
                 route "/" >=> indexHandler "world"
                 routef "/hello/%s" indexHandler
                 route "/records/gender" >=> byGenderThenLastName
-
+                route "/records" >=> addPerson
+            ]
+        POST >=>
+            choose [
+                route "/records" >=> addPerson
+               
             ]
         setStatusCode 404 >=> text "Not Found" ]
 

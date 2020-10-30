@@ -1,0 +1,18 @@
+GET https://localhost:5001/records
+Accept: application/json
+
+###
+
+POST https://localhost:5001/records
+Content-Type: application/json
+
+{"case":"Piped","fields":["smith|john|m|blue|12/25/1985"]}
+
+###
+# considered, not used.  +simpler code +self-documenting  +more general -sunk cost
+POST https://localhost:5001/records
+Content-Type: application/json
+
+{"delimiter":"|","value":"lincoln|abe|m|grey|2/12/1809"}
+
+###
