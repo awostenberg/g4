@@ -38,3 +38,4 @@ let compareGenderThenLastName' p1 p2 = compareGenderThenLastName p1 p2 |> compar
 
 let orderByGenderThenLastName people = people |> List.sortWith compareGenderThenLastName'
 
+let orderByBirthDateAscending people = people |> List.sortBy (fun p -> p.dateOfBirth)
