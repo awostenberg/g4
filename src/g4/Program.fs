@@ -23,7 +23,6 @@ let mutable people:Models.Person list = []
 
 type Message =
     {
-        Id : int
         Text : string
     }
 
@@ -60,7 +59,7 @@ module Views =
 
 let indexHandler (name : string) =
     let greetings = sprintf "Hello %s, from Giraffe!" name
-    let model     = {Id=42;Text = greetings }
+    let model     = {Text = greetings }
     let view      = Views.index model
     htmlView view
 
