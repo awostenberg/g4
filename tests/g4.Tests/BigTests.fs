@@ -9,7 +9,7 @@ open Microsoft.AspNetCore.Builder
 open Microsoft.AspNetCore.Hosting
 open Microsoft.AspNetCore.TestHost
 open Microsoft.Extensions.DependencyInjection
-open FSharp.Control.Tasks.V2.ContextInsensitive
+
 
 // ---------------------------------
 // Helper functions (extend as you need)
@@ -36,12 +36,7 @@ let httpPostJson (path : string) (client : HttpClient) (json: string) =
     client.PostAsync(path,sc)
     |> runTask
     
-    //mabye try http://fssnip.net/a7/title/Send-HTTP-POST-request
 
-    
-    
-
- 
 
 
 let isStatus (code : HttpStatusCode) (response : HttpResponseMessage) =
@@ -113,7 +108,7 @@ let ``records by gender`` () =
     let people = ["smith|john|m|blue|12/25/1985";
                   "smythe|jane|f|green|12/25/1985" ]
                  |> List.map (Models.Piped >> Models.toPerson)
-    g4.App.people <- people
+    g4.App.people <- people    //todo threading
     
     use server = new TestServer(createHost())
     use client = server.CreateClient()
@@ -125,7 +120,7 @@ let ``records by gender`` () =
     |> shouldOrderBy ("smythe","smith")
 
 [<Fact>] 
-let ``add person -- post /record`` () =
+let ``add person -- POST /record`` () =
     use server = new TestServer(createHost())
     use client = server.CreateClient()
     g4.App.people <- []        //todo thread safety
@@ -136,4 +131,21 @@ let ``add person -- post /record`` () =
     |> readText
     |> shouldContain "peter"
     Assert.True(g4.App.people.Length=1,sprintf "Expected one person have %d" g4.App.people.Length)
+    
+[<Fact>]
+let ``records by birth date ascending -- GET /records/birthdate``() =
+    let people = ["pliney|younger|f|green|12/25/1930"
+                  "pliney|elder|m|blue|12/25/1923"; ]
+                  |> List.map (Models.Piped >> Models.toPerson)
+
+    g4.App.people <- people        //todo thread safety  
+    use server = new TestServer(createHost())
+    use client = server.CreateClient()
+    
+    client
+    |> httpGet "/records/birthdate"
+    |> ensureSuccess
+    |> readText
+    |> shouldOrderBy ("elder","younger")
+    
     

@@ -67,8 +67,9 @@ let indexHandler (name : string) =
 let byGenderThenLastName ctx =
     json (Models.orderByGenderThenLastName people) ctx
 
+let byBirthDateAscending ctx =
+    json (Models.orderByBirthDateAscending people) ctx
 
-type InputFormat = {delimiter:string; value:string}    //preferable to Models.InputType?
 let addPerson  =
     fun (next:HttpFunc) (ctx:HttpContext) ->
         task {
@@ -84,7 +85,7 @@ let webApp =
                 route "/" >=> indexHandler "world"
                 routef "/hello/%s" indexHandler
                 route "/records/gender" >=> byGenderThenLastName
-                route "/records" >=> addPerson
+                route "/records/birthdate" >=> byBirthDateAscending
             ]
         POST >=>
             choose [
