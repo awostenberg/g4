@@ -15,7 +15,7 @@ type InputType = Piped of String
 
 let toPerson s =
     match s with
-    | Piped s -> let tokens = s.Split('|')
+    | Piped s -> let tokens = s.Split('|') |> Array.map (fun token -> token.Trim())   
                  {lastName=tokens.[0]
                   firstName=tokens.[1]
                   gender=if tokens.[2]="m" then Male else Female
