@@ -105,14 +105,15 @@ let ``Route which doesn't exist returns 404 Page not found`` () =
     
 [<Fact>] 
 let ``records by gender`` () =
+
+    use server = new TestServer(createHost())
+    use client = server.CreateClient()
+
     let people = ["smith|john|m|blue|12/25/1985";
                   "smythe|jane|f|green|12/25/1985" ]
                  |> List.map (Models.Piped >> Models.toPerson)
     g4.App.people <- people    //todo threading
-    
-    use server = new TestServer(createHost())
-    use client = server.CreateClient()
-    
+        
     client
     |> httpGet "/records/gender"
     |> ensureSuccess
@@ -124,6 +125,7 @@ let ``add person -- POST /record`` () =
     use server = new TestServer(createHost())
     use client = server.CreateClient()
     g4.App.people <- []        //todo thread safety
+    
     let jsonPayload = """{"case":"Piped","fields":["piper|peter|m|blue|12/25/1984"]}"""
     
     httpPostJson "/records" client jsonPayload
@@ -134,14 +136,17 @@ let ``add person -- POST /record`` () =
     
 [<Fact>]
 let ``records by birth date ascending -- GET /records/birthdate``() =
+
+    use server = new TestServer(createHost())
+    use client = server.CreateClient()
+
+
     let people = ["pliney|younger|f|green|12/25/1930"
                   "pliney|elder|m|blue|12/25/1923"; ]
                   |> List.map (Models.Piped >> Models.toPerson)
 
-    g4.App.people <- people        //todo thread safety  
-    use server = new TestServer(createHost())
-    use client = server.CreateClient()
-    
+    g4.App.people <- people        //todo thread safety      
+        
     client
     |> httpGet "/records/birthdate"
     |> ensureSuccess
@@ -150,14 +155,15 @@ let ``records by birth date ascending -- GET /records/birthdate``() =
     
 [<Fact>]
  let ``records by last name descending -- GET /records/name``() =
+
+     use server = new TestServer(createHost())
+     use client = server.CreateClient()
+
      let people = ["adams|abe|f|green|12/25/1930"
                    "zigbee|abe|f|green|12/25/1930"; ]
                   |> List.map (Models.Piped >> Models.toPerson)
      g4.App.people <- people        //todo thread safety
-     
-     use server = new TestServer(createHost())
-     use client = server.CreateClient()
-     
+          
      client
      |> httpGet "/records/name"
      |> ensureSuccess

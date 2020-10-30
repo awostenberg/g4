@@ -85,9 +85,9 @@ let webApp =
             choose [
                 route "/" >=> indexHandler "world"
                 routef "/hello/%s" indexHandler
-                route "/records/gender" >=> byGenderThenLastName
-                route "/records/birthdate" >=> byBirthDateAscending
-                route "/records/name" >=> byNameDescending
+                route "/records/gender" >=> warbler (fun _ -> byGenderThenLastName)
+                route "/records/birthdate" >=> warbler (fun _ -> byBirthDateAscending)
+                route "/records/name" >=> warbler (fun _ -> byNameDescending)
             ]
         POST >=>
             choose [
