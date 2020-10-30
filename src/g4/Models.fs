@@ -11,7 +11,7 @@ type Person = {
     dateOfBirth: DateTime
 }
 
-type InputType = Piped
+type InputType = Piped of string | Comma of string
 
 let toPerson format =
     let decode (s:string) (delimiter:char) =
@@ -23,7 +23,7 @@ let toPerson format =
          dateOfBirth=DateTime.Parse(tokens.[4])}
     match format with
     | Piped s -> decode s '|'
-
+    | Comma s -> decode s ','
                  
 
 type Comparison = Lt|Eq|Gt

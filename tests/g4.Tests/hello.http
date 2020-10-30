@@ -9,6 +9,13 @@ Content-Type: application/json
 {"case":"Piped","fields":["smith|john|m|blue|12/25/1985"]}
 
 ###
+
+POST https://localhost:5001/records
+Content-Type: application/json
+
+{"case":"Comma","fields":["smith,jane,f,green,12/24/1985"]}
+
+###
 # considered, not used.  +simpler code +self-documenting  +more general -sunk cost
 POST https://localhost:5001/records
 Content-Type: application/json
