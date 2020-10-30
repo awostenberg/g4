@@ -74,7 +74,7 @@ let byNameDescending ctx =
 let addPerson  =
     fun (next:HttpFunc) (ctx:HttpContext) ->
         task {
-            let! description = ctx.BindModelAsync<Models.InputType>() //todo brittle
+            let! description = ctx.BindModelAsync<Models.InputFormat>() //todo better error msg
             let person = Models.toPerson description 
             people <- person::people    //todo thread safety
             return! (json person) next ctx

@@ -11,7 +11,7 @@ type Person = {
     dateOfBirth: DateTime
 }
 
-type InputType = Piped of string | Comma of string
+type InputFormat = Piped of string | Comma of string | Space of string
 
 let toPerson format =
     let decode (s:string) (delimiter:char) =
@@ -24,6 +24,7 @@ let toPerson format =
     match format with
     | Piped s -> decode s '|'
     | Comma s -> decode s ','
+    | Space s -> decode s ' '
                  
 
 type Comparison = Lt|Eq|Gt
