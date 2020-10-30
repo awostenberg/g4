@@ -58,9 +58,19 @@ let ``compare people by gender, female first, then last name ascending``() =
     let elder = {jsmith with
                  firstName="elder"
                  dateOfBirth=DateTime.Parse("1-dec-1985")}
+    
     let result = orderByBirthDateAscending [younger;elder]
     
     Assert.Equal(elder,result.Head)
+    
+[<Fact>] let ``sort by last name descending``() =
+    let a = {jsmith with lastName="a"}
+    let z = {jsmith with lastName="z"}
+    
+    let result = orderByLastNameDescending [a;z]
+    
+    Assert.Equal(z,result.Head)
+    
     
     
      
