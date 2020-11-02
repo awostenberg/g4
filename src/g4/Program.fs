@@ -133,8 +133,11 @@ let configureLogging (builder : ILoggingBuilder) =
            .AddConsole()
            .AddDebug() |> ignore
 
+
 [<EntryPoint>]
 let main args =
+    if args.Length > 0 then g4.Console.run(args)
+    
     let contentRoot = Directory.GetCurrentDirectory()
     let webRoot     = Path.Combine(contentRoot, "WebRoot")
     Host.CreateDefaultBuilder(args)
