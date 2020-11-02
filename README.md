@@ -38,3 +38,8 @@ Content-Type: application/json
 {"case":"Piped","fields":["smith|john|m|blue|12/25/1985"]}
 ```
 where *case* can be Piped | Comma | Space
+
+To start the console app taking input from files:
+```
+dotnet run -p src/g4 --piped input.txt
+```
