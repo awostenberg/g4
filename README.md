@@ -29,3 +29,12 @@ dotnet run -p src/g4
 ```
 
 After the application has started visit [http://localhost:5000](http://localhost:5000) in your preferred browser.
+
+POST /records example
+```
+POST https://localhost:5001/records
+Content-Type: application/json
+
+{"case":"Piped","fields":["smith|john|m|blue|12/25/1985"]}
+```
+where *case* can be Piped | Comma | Space
