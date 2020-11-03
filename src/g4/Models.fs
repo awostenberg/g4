@@ -45,3 +45,9 @@ let orderByGenderThenLastName people = people |> List.sortWith compareGenderThen
 let orderByBirthDateAscending people = people |> List.sortBy (fun p -> p.dateOfBirth)
 
 let orderByLastNameDescending people = people |> List.sortByDescending (fun p -> p.lastName)
+
+let format p = sprintf "%s\t%s\t%s\t%s\t%s" p.lastName p.firstName 
+                   (match p.gender with Male -> "male" | Female -> "female")
+                   p.favoriteColor
+                   (p.dateOfBirth.ToString("MM/dd/yyyy"))
+    

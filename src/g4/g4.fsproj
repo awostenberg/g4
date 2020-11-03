@@ -12,8 +12,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Include="Console.fs" />
     <Compile Include="Models.fs" />
+    <Compile Include="Console.fs" />
     <Compile Include="Program.fs" />
   </ItemGroup>
 

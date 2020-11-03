@@ -94,6 +94,10 @@ let ``compare people by gender, female first, then last name ascending``() =
     
     Assert.Equal(z,result.Head)
     
+
+[<Fact>] let ``format m/d/yyy``() =
     
+    let result = format jsmith
+    Assert.Equal("smith\tjohn\tmale\tblue\t12/25/1985",result)    
     
      
