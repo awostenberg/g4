@@ -134,13 +134,11 @@ let configureLogging (builder : ILoggingBuilder) =
            .AddDebug() |> ignore
 
 
-[<EntryPoint>]
-let main args =
-    if args.Length > 0 then g4.Console.run(args)
-    
+let webapp() =
     let contentRoot = Directory.GetCurrentDirectory()
     let webRoot     = Path.Combine(contentRoot, "WebRoot")
-    Host.CreateDefaultBuilder(args)
+    // this builder can take command line args for ports and such (I think), which argues for separate webapp.exe
+    Host.CreateDefaultBuilder() 
         .ConfigureWebHostDefaults(
             fun webHostBuilder ->
                 webHostBuilder
@@ -152,4 +150,9 @@ let main args =
                     |> ignore)
         .Build()
         .Run()
+[<EntryPoint>]
+let main args =
+    if args.Length > 0 then g4.Console.run(args) else webapp()
+    
+
     0
