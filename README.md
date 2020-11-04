@@ -47,5 +47,6 @@ dotnet run -p src/g4 --piped /tmp/input.txt --orderBy name
 dotnet run -p src/g4 help
 
 ```
-where --orderBy may be ``name|gender|birth`` or any combination,
-and input may be``--piped | --comma | --space`` or any combination
+where 
+* --orderBy may be ``name|gender|birth`` or any combination (each has a separate output section)
+* input may be``--piped | --comma | --space`` or any combination (each will be read and merged)
