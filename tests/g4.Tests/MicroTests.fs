@@ -4,35 +4,39 @@ open Models
 open System
 open Xunit
 
-[<Fact>] let ``john smith from pipe``() =
-        let result =  Piped "smith|john|m|blue|12/25/1985" |> toPerson    
-        Assert.Equal({firstName="john"
-                      lastName="smith"
-                      gender=Male
-                      favoriteColor="blue"
-                      dateOfBirth=DateTime.Parse("25-Dec-1985")},result)
-[<Fact>] let ``jane doe from pipe``() =
-        let result =  (Piped "doe|jane|f|green|4/23/1985") |> toPerson
-        Assert.Equal( {firstName="jane"
-                       lastName="doe"
-                       gender=Female
-                       favoriteColor="green"
-                       dateOfBirth=DateTime.Parse("23-apr-1985")},result)
-       
-[<Fact>] let ``trim spaces before and after pipe``() =
-        let result =  Piped "smith | john | m| blue | 12/25/1985" |> toPerson
-        Assert.Equal({firstName="john"
-                      lastName="smith"
-                      gender=Male
-                      favoriteColor="blue"
-                      dateOfBirth=DateTime.Parse("25-Dec-1985")},result)
-[<Fact>] let ``john smith from comma``() =
-        let result =  Comma "smith,john,m,blue,12/25/1985" |> toPerson    
-        Assert.Equal({firstName="john"
-                      lastName="smith"
-                      gender=Male
-                      favoriteColor="blue"
-                      dateOfBirth=DateTime.Parse("25-Dec-1985")},result)
+[<Fact>]
+let ``john smith from pipe``() =
+     let result =  Piped "smith|john|m|blue|12/25/1985" |> toPerson    
+     Assert.Equal( {firstName="john"
+                    lastName="smith"
+                    gender=Male
+                    favoriteColor="blue"
+                    dateOfBirth=DateTime.Parse("25-Dec-1985")},result)
+[<Fact>]
+let ``jane doe from pipe``() =
+    let result =  (Piped "doe|jane|f|green|4/23/1985") |> toPerson
+    Assert.Equal( {firstName="jane"
+                   lastName="doe"
+                   gender=Female
+                   favoriteColor="green"
+                   dateOfBirth=DateTime.Parse("23-apr-1985")},result)
+   
+[<Fact>]
+let ``trim spaces before and after pipe``() =
+    let result =  Piped "smith | john | m| blue | 12/25/1985" |> toPerson
+    Assert.Equal({firstName="john"
+                  lastName="smith"
+                  gender=Male
+                  favoriteColor="blue"
+                  dateOfBirth=DateTime.Parse("25-Dec-1985")},result)
+[<Fact>]
+let ``john smith from comma``() =
+    let result =  Comma "smith,john,m,blue,12/25/1985" |> toPerson    
+    Assert.Equal({firstName="john"
+                  lastName="smith"
+                  gender=Male
+                  favoriteColor="blue"
+                  dateOfBirth=DateTime.Parse("25-Dec-1985")},result)
 [<Fact>]
 let ``john smith from space separators``() =
     let result =  Space "smith john m blue 12/25/1985" |> toPerson    
@@ -63,30 +67,34 @@ let ``compare people by gender, female first, then last name ascending``() =
     Assert.Equal(Gt,compareGenderThenLastName jsmith {jsmith with lastName="zurich";gender=Female})
     Assert.Equal(Gt,compareGenderThenLastName jsmith {jsmith with lastName="adams"})
 
-[<Fact>] let ``comparison to int``() =
-        Assert.Equal(-1,comparisonToInt Lt)
-        Assert.Equal(0,comparisonToInt Eq)
-        Assert.Equal(1,comparisonToInt Gt)
+[<Fact>]
+let ``comparison to int``() =
+    Assert.Equal(-1,comparisonToInt Lt)
+    Assert.Equal(0,comparisonToInt Eq)
+    Assert.Equal(1,comparisonToInt Gt)
 
-[<Fact>] let ``sort by gender then last name``() =
+[<Fact>]
+let ``sort by gender then last name``() =
     let jane = {jsmith with firstName="jane";gender=Female}
     let result = orderByGenderThenLastName [jsmith;jane]
     Assert.Equal(jane,result.Head)
 
         
-[<Fact>] let ``sort by birth date, ascending``() =
+[<Fact>]
+let ``sort by birth date, ascending``() =
     let younger = {jsmith with
-                   firstName="younger"
-                   dateOfBirth=DateTime.Parse("12-dec-1985")}
+                    firstName="younger"
+                    dateOfBirth=DateTime.Parse("12-dec-1985")}
     let elder = {jsmith with
-                 firstName="elder"
-                 dateOfBirth=DateTime.Parse("1-dec-1985")}
+                  firstName="elder"
+                  dateOfBirth=DateTime.Parse("1-dec-1985")}
     
     let result = orderByBirthDateAscending [younger;elder]
     
     Assert.Equal(elder,result.Head)
     
-[<Fact>] let ``sort by last name descending``() =
+[<Fact>]
+let ``sort by last name descending``() =
     let a = {jsmith with lastName="a"}
     let z = {jsmith with lastName="z"}
     
@@ -95,13 +103,13 @@ let ``compare people by gender, female first, then last name ascending``() =
     Assert.Equal(z,result.Head)
     
 
-[<Fact>] let ``format m/d/yyy``() =
+[<Fact>]
+let ``format m/d/yyy``() =
     
     let result = format jsmith
     Assert.Equal("smith\tjohn\tmale\tblue\t12/25/1985",result)    
 
-//todo not microtests as these do I/O... put elsewhere
-
+//todo next few are not micro tests as they do I/O... put elsewhere
 
 let tempFileWith lines fn =
     let tmp = System.IO.Path.GetTempFileName()
@@ -111,30 +119,31 @@ let tempFileWith lines fn =
 
 
    
-[<Fact>] let ``IO file lines as seq``() =
+[<Fact>]
+let ``IO file lines as seq``() =
             tempFileWith ["hello";"world"] (fun tmpFile -> 
                 let result = readLines tmpFile
                 Assert.StrictEqual(["hello";"world"],Seq.toList result)
             )
     
-[<Fact>] let ``IO read piped file``() =
-            tempFileWith ["smith|john|m|blue|12/25/1985"]
-                (fun tmpFile ->
-                    let result = g4.Console.readFiles [(Piped tmpFile)]
-                    Assert.StrictEqual([jsmith],Seq.toList result)
-        )
-                    
-[<Fact>] let ``IO read comma file``() =
-            tempFileWith ["smith,john,m,blue,12/25/1985"]
-                (fun tmpFile ->
-                    let result = g4.Console.readFiles [(Comma tmpFile)]
-                    Assert.StrictEqual([jsmith],Seq.toList result)
-        )
+[<Fact>]
+let ``IO read piped file``() =
+    tempFileWith ["smith|john|m|blue|12/25/1985"]
+        (fun tmpFile ->
+            let result = g4.Console.readFiles [(Piped tmpFile)]
+            Assert.StrictEqual([jsmith],Seq.toList result))
+            
+[<Fact>]
+let ``IO read comma file``() =
+    tempFileWith ["smith,john,m,blue,12/25/1985"]
+        (fun tmpFile ->
+            let result = g4.Console.readFiles [(Comma tmpFile)]
+            Assert.StrictEqual([jsmith],Seq.toList result))
           
-[<Fact>] let ``IO read space file``() =
-tempFileWith ["smith john m blue 12/25/1985"]
-    (fun tmpFile ->
-        let result = g4.Console.readFiles [(Space tmpFile)]
-        Assert.StrictEqual([jsmith],Seq.toList result)
-)      
+[<Fact>]
+let ``IO read space file``() =
+     tempFileWith ["smith john m blue 12/25/1985"]
+        (fun tmpFile ->
+            let result = g4.Console.readFiles [(Space tmpFile)]
+            Assert.StrictEqual([jsmith],Seq.toList result))      
                 
