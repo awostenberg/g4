@@ -58,7 +58,7 @@ module Views =
 // ---------------------------------
 
 let indexHandler (name : string) =
-    let greetings = sprintf "Hello %s, from Giraffe!" name
+    let greetings = sprintf "Hello %s, from Giraffe!; try records/name|gender|birthdate" name
     let model     = {Text = greetings }
     let view      = Views.index model
     htmlView view
