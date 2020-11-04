@@ -7,7 +7,6 @@ let readFiles commands =
     | [Piped filename] -> readLines filename |> Seq.map (fun line -> toPerson (Piped line))
 
                            
-let sortBy _ people = people |> Seq.toList |> orderByLastNameDescending 
 let format (people: Person seq) = people |> Seq.map format
 
 let toConsole (title:string) (strings:string seq) =
@@ -20,8 +19,10 @@ let run (args:string[]) =
     //todo maybe refactor console.fs towards a separate .exe, sharing common lib of what is in Model..
     //     I take that to be intent of "Within the same code base, build a standalone REST API with the following endpoints"
     
+    let mutable people:Person list = list.Empty
     match args with
-    | [|"--piped";filename|] -> readFiles [Piped filename] |> sortBy args |> format |> toConsole "by last name descending"
+    | [|"--piped";filename|] -> people <- readFiles [Piped filename] |> Seq.toList
+    | [|"--orderBy";"name"|] -> people |> orderByLastNameDescending |> format |> toConsole "by last name descending"
     | _ -> printfn "command line args %A" args
            printfn "console usage: --piped <inputfile> --comma <inputfile> --space <inputfile> --orderBy gender|birth|name"
     ()
