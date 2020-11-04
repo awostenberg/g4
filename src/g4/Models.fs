@@ -50,4 +50,12 @@ let format p = sprintf "%s\t%s\t%s\t%s\t%s" p.lastName p.firstName
                    (match p.gender with Male -> "male" | Female -> "female")
                    p.favoriteColor
                    (p.dateOfBirth.ToString("MM/dd/yyyy"))
-    
+                   
+//todo command line parsing, this, move to what? IO? port?
+//   (intent is hexagonal https://dzone.com/articles/hexagonal-architecture-what-is-it-and-how-does-it)
+
+let readLines (filePath:string) = seq {
+    use sr = new System.IO.StreamReader (filePath)
+    while not sr.EndOfStream do
+        yield sr.ReadLine ()
+}

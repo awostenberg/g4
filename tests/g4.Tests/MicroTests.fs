@@ -99,5 +99,29 @@ let ``compare people by gender, female first, then last name ascending``() =
     
     let result = format jsmith
     Assert.Equal("smith\tjohn\tmale\tblue\t12/25/1985",result)    
+
+//todo not microtests as these do I/O... put elsewhere
+
+
+let tempFileWith lines fn =
+    let tmp = System.IO.Path.GetTempFileName()
+    System.IO.File.WriteAllLines(tmp,lines |> Seq.toArray)
+    fn tmp
+    System.IO.File.Delete tmp
+
+
+   
+[<Fact>] let ``IO file lines as seq``() =
+            tempFileWith ["hello";"world"] (fun tmpFile -> 
+                let result = readLines tmpFile
+                Assert.StrictEqual(["hello";"world"],Seq.toList result)
+            )
     
+[<Fact>] let ``IO read piped file``() =
+            tempFileWith ["smith|john|m|blue|12/25/1985"]
+                (fun tmpFile ->
+                    let result = g4.Console.readFiles [(Piped tmpFile)]
+                    Assert.StrictEqual([jsmith],Seq.toList result)
+        )
+                    
      
