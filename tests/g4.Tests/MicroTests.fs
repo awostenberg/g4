@@ -124,4 +124,9 @@ let tempFileWith lines fn =
                     Assert.StrictEqual([jsmith],Seq.toList result)
         )
                     
-     
+[<Fact>] let ``IO read comma file``() =
+            tempFileWith ["smith,john,m,blue,12/25/1985"]
+                (fun tmpFile ->
+                    let result = g4.Console.readFiles [(Comma tmpFile)]
+                    Assert.StrictEqual([jsmith],Seq.toList result)
+        )
