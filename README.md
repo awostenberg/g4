@@ -42,8 +42,10 @@ where *case* can be Piped | Comma | Space
 To start the console app taking input from files:
 ```
 echo "smythe|jayne|green|12/25/1985" >/tmp/input.txt
-dotnet run -p src/g4 --piped /tmp/input.txt
+dotnet run -p src/g4 --piped /tmp/input.txt --orderBy name
 
 dotnet run -p src/g4 help
 
 ```
+where --orderBy may be ``name|gender|birth`` or any combination,
+and input may be``--piped | --comma | --space`` or any combination
