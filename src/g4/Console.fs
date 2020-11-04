@@ -6,7 +6,8 @@ let readFiles commands =
     match commands with
     | [Piped filename] -> readLines filename |> Seq.map (fun line -> toPerson (Piped line))
     | [Comma filename] -> readLines filename |> Seq.map (fun line -> toPerson (Comma line))
-                           
+    | [Space filename] -> readLines filename |> Seq.map (fun line -> toPerson (Space line))
+                                      
 let format (people: Person seq) = people |> Seq.map format
 
 let toConsole (title:string) (strings:string seq) =
@@ -29,6 +30,9 @@ let run (args:string[]) =
                                        run' people rest
         | "--comma"::filename::rest -> let people = List.append accum (readFiles [Comma filename] |> Seq.toList)
                                        run' people rest
+        | "--space"::filename::rest -> let people = List.append accum (readFiles [Space filename] |> Seq.toList)
+                                       run' people rest
+    
         | "--orderBy"::"name"::rest -> accum |> orderByLastNameDescending |> format |> toConsole "by last name descending"
                                        run' accum rest
         | [] -> ()

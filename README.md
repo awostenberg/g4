@@ -43,4 +43,7 @@ To start the console app taking input from files:
 ```
 echo "smythe|jayne|green|12/25/1985" >/tmp/input.txt
 dotnet run -p src/g4 --piped /tmp/input.txt
+
+dotnet run -p src/g4 help
+
 ```
