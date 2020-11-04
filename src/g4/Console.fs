@@ -5,7 +5,7 @@ open System
 let readFiles commands =
     match commands with
     | [Piped filename] -> readLines filename |> Seq.map (fun line -> toPerson (Piped line))
-
+    | [Comma filename] -> readLines filename |> Seq.map (fun line -> toPerson (Comma line))
                            
 let format (people: Person seq) = people |> Seq.map format
 
@@ -14,10 +14,10 @@ let toConsole (title:string) (strings:string seq) =
     strings |> Seq.iter (fun s -> System.Console.WriteLine(s) )
 
 let run (args:string[]) =
-    printfn "console usage: --piped <inputfile> --comma <inputfile> --space <inputfile> --orderBy gender|birth|name"
+    let usage() = printfn "console usage: --piped <inputfile> --comma <inputfile> --space <inputfile> --orderBy gender|birth|name"
     let args = Seq.toList args
     let rec run' accum args =
-        printfn "command line args %A" args
+        //printfn "command line args %A" args
         //todo read in 3 files in [x] --piped, --comma, and --space delimited. Use existing InputFormat parser common to web app"
         //todo order by --gender, --birth date, or [x] --name. Use existing orderBy* common to web app"
         //x Display dates in the format M/D/YYYY"
@@ -25,10 +25,16 @@ let run (args:string[]) =
         //     I take that to be intent of "Within the same code base, build a standalone REST API with the following endpoints"
         
         match args with
-        | "--piped"::filename::rest -> run' (readFiles [Piped filename] |> Seq.toList) rest
+        | "--piped"::filename::rest -> let people = List.append accum (readFiles [Piped filename] |> Seq.toList)
+                                       run' people rest
+        | "--comma"::filename::rest -> let people = List.append accum (readFiles [Comma filename] |> Seq.toList)
+                                       run' people rest
         | "--orderBy"::"name"::rest -> accum |> orderByLastNameDescending |> format |> toConsole "by last name descending"
                                        run' accum rest
-        | _ -> ()         
+        | [] -> ()
+        | oops::_ -> printfn "***ERROR: unknown at %s" oops
+                     usage()
+                     
         //| [|"--orderBy";_|] -> Console.WriteLine "order by"
         //| [|"--order";_|] -> people |> orderByLastNameDescending |> format |> toConsole "by last name descending"
         //| [|"--orderBy";"birth"|] -> people |> orderByBirthDateAscending |> format |> toConsole "by birth date ascending"
