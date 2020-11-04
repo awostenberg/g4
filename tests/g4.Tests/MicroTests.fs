@@ -118,7 +118,7 @@ let tempFileWith lines fn =
     System.IO.File.Delete tmp
 
 
-   
+open g4.Console
 [<Fact>]
 let ``IO file lines as seq``() =
             tempFileWith ["hello";"world"] (fun tmpFile -> 
@@ -128,22 +128,100 @@ let ``IO file lines as seq``() =
     
 [<Fact>]
 let ``IO read piped file``() =
+
     tempFileWith ["smith|john|m|blue|12/25/1985"]
-        (fun tmpFile ->
-            let result = g4.Console.readFiles [(Piped tmpFile)]
-            Assert.StrictEqual([jsmith],Seq.toList result))
+        (fun tmp1File ->
+            tempFileWith ["smythe,john,m,blue,12/25/1985"]
+                (fun tmp2File ->
+                    let result = readFiles [Piped tmp1File;Comma tmp2File]
+                    Assert.StrictEqual([jsmith;{jsmith with lastName="smythe"}],Seq.toList result)))
             
 [<Fact>]
 let ``IO read comma file``() =
     tempFileWith ["smith,john,m,blue,12/25/1985"]
         (fun tmpFile ->
-            let result = g4.Console.readFiles [(Comma tmpFile)]
+            let result = readFiles [(Comma tmpFile)]
             Assert.StrictEqual([jsmith],Seq.toList result))
           
 [<Fact>]
 let ``IO read space file``() =
      tempFileWith ["smith john m blue 12/25/1985"]
         (fun tmpFile ->
-            let result = g4.Console.readFiles [(Space tmpFile)]
+            let result = readFiles [(Space tmpFile)]
             Assert.StrictEqual([jsmith],Seq.toList result))      
+          
+[<Fact>]
+let ``IO read multiple files``() =
+     tempFileWith ["smith john m blue 12/25/1985"]
+        (fun tmpFile ->
+            let result = readFiles [(Space tmpFile)]
+            Assert.StrictEqual([jsmith],Seq.toList result))      
+             
                 
+
+[<Fact>]
+let ``cli parse --piped `` () =
+
+    let result = toCommands ["--piped";"foo.bar"]
+
+    Assert.Equal({files=[Piped "foo.bar"];error=None;order=[]},result)
+
+[<Fact>]
+let ``cli parse --comma `` () =
+
+    let result = toCommands ["--comma";"foo.comma"]
+
+    Assert.Equal({files=[Comma "foo.comma"];error=None;order=[]},result)
+[<Fact>]
+let ``cli parse --space `` () =
+
+    let result = toCommands ["--space";"foo.space"]
+
+    Assert.Equal({files=[Space "foo.space"];error=None;order=[]},result)
+[<Fact>]
+let ``cli parse multiple file inputs`` () =
+
+    let result = toCommands ["--space";"foo.space";"--piped";"foo.pipe";"--comma";"foo.comma"]
+
+    Assert.Equal({files=[Space "foo.space";Piped "foo.pipe";Comma "foo.comma"];error=None;order=[]},result)
+
+[<Fact>]
+let ``cli parse error - unknown option``() =
+    let result = toCommands ["--oops"]
+    
+    Assert.True(result.error.IsSome)
+
+[<Fact>]
+let ``cli parse error - unknown orderby``() =
+    let result = toCommands ["--orderBy";"whatever"]
+    
+    Assert.True(result.error.IsSome)
+    let msg = result.error.Value
+    Assert.Contains ("whatever",msg)    
+
+
+[<Fact>]
+let ``cli parse --orderBy name ``() =
+    let result = toCommands ["--orderBy";"name"]
+    
+    Assert.StrictEqual([ByName],result.order)
+
+[<Fact>]
+let ``cli parse --orderBy birth ``() =
+    let result = toCommands ["--orderBy";"birth"]
+    
+    Assert.StrictEqual([ByBirth],result.order)
+
+[<Fact>]
+let ``cli parse --orderBy gender ``() =
+    let result = toCommands ["--orderBy";"gender"]
+    
+    Assert.StrictEqual([ByGender],result.order)
+[<Fact>]
+let ``cli parse many --orderBy ``() =
+    let result = toCommands ["--orderBy";"gender";"--orderBy";"birth";"--orderBy";"name"]
+    
+    Assert.StrictEqual([ByGender;ByBirth;ByName],result.order)
+
+   
+   
