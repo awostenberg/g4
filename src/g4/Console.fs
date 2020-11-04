@@ -35,14 +35,11 @@ let run (args:string[]) =
     
         | "--orderBy"::"name"::rest -> accum |> orderByLastNameDescending |> format |> toConsole "by last name descending"
                                        run' accum rest
+        | "--orderBy"::"birth"::rest -> accum |> orderByBirthDateAscending |> format |> toConsole "by birth date ascending"
         | [] -> ()
+        | "help"::_ -> usage() // can't easily do --help because dotnet run consumes that
         | oops::_ -> printfn "***ERROR: unknown at %s" oops
                      usage()
-                     
-        //| [|"--orderBy";_|] -> Console.WriteLine "order by"
-        //| [|"--order";_|] -> people |> orderByLastNameDescending |> format |> toConsole "by last name descending"
-        //| [|"--orderBy";"birth"|] -> people |> orderByBirthDateAscending |> format |> toConsole "by birth date ascending"
-//        | _ -> printfn "command line args %A" args
-//              
+                              
     run' [] args
      
