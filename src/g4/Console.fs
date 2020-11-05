@@ -44,13 +44,13 @@ let getInputs commands = commands
                          |> Seq.map (fun item -> item.Value)
 
 let run' (args:string[]) report =
-
-    let usage() = printfn "console usage: --piped <inputfile> --comma <inputfile> --space <inputfile> --orderBy gender|birth|name"
+    let out s = report "" (List.toSeq [s])
+    let usage = "console usage: --piped <inputfile> --comma <inputfile> --space <inputfile> --orderBy gender|birth|name"
     let commands = args |> Seq.toList |> toCommands
     let error = commands |> Seq.tryPick (fun x -> match x with Error msg -> Some msg | _ -> None)  
     match error with
-    | Some msg -> printfn "%s" msg
-                  usage()
+    | Some msg -> out msg
+                  out usage
     | None ->
         let inputs = commands |> getInputs |> readFiles |> Seq.toList
         let sortAndOutput item =
