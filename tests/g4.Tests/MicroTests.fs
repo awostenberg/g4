@@ -1,4 +1,4 @@
-module Micro        //why micro tests? https://www.geepawhill.org/2018/04/14/tdd-the-lump-of-coding-fallacy/
+module MicroTests        //why micro tests? https://www.geepawhill.org/2018/04/14/tdd-the-lump-of-coding-fallacy/
 
 open Models
 open System
@@ -187,18 +187,19 @@ let ``cli parse many --orderBy ``() =
 let mkRecordingConsole() =
     let recording = ref List.empty
     let toConsole title strings =  toConsole' (fun s -> recording := List.append !recording [s]) title strings
-    recording,toConsole
-        
+    let getRecording() = (!recording).ToString()
+    getRecording,toConsole
+
 [<Fact>]
-let ``console app outputs something`` () =
+let ``IO console app outputs something`` () =
     let recording,recordingConsole = mkRecordingConsole()
     
     tempFileWith ["smith|john|m|blue|25-Dec-1985"]
         (fun tmpFile ->
                 run' [|"--piped";tmpFile;"--orderBy";"name"|] recordingConsole)
  
-    Assert.Matches("by last name",(!recording).ToString())
-    Assert.Matches("smith.john.male.blue.12/25/1985",(!recording).ToString())
+    Assert.Matches("by last name",recording())
+    Assert.Matches("smith.john.male.blue.12/25/1985",recording())
            
 [<Fact>]
 let ``console app command line error`` () =
@@ -206,5 +207,5 @@ let ``console app command line error`` () =
     
     run' [|"--orderBy";"oops"|] recordingConsole
     
-    Assert.Matches("Error.*oops",(!recording).ToString())
+    Assert.Matches("Error.*oops",recording())
     
