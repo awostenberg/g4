@@ -172,18 +172,11 @@ let ``cli parse error: unknown option``() =
     let result = toCommands ["--oops"]
     Assert.StrictEqual([Error "Error: unknown option --oops"],result)
 
-//    let m = match result with [Error msg] -> msg
-//    Assert.Contains ("oops",m)
-
 [<Fact>]
 let ``cli parse error - unknown orderby``() =
     let result = toCommands ["--orderBy";"whatever"]    
 
     Assert.StrictEqual([Error "Error: unknown --orderBy whatever"],result)
-
-//    let m = match result with [Error msg] -> msg
-//    Assert.Contains ("whatever",m)    
-
 
 [<Fact>]
 let ``cli parse many --orderBy ``() =
@@ -191,5 +184,17 @@ let ``cli parse many --orderBy ``() =
     
     Assert.StrictEqual([ByGender;ByBirth;ByName],result)
 
-   
-   
+[<Fact>]
+let ``console app outputs something`` () =
+
+    let mutable captureOut:string list = List.empty
+    let captureConsole title strings =  toConsole' (fun s -> captureOut <- List.append captureOut [s]) title strings
+
+    tempFileWith ["smith|john|m|blue|25-Dec-1985"]
+        (fun tmpFile ->
+                run' [|"--piped";tmpFile;"--orderBy";"name"|] captureConsole)
+ 
+    Assert.Matches("by last name",captureOut.ToString())
+    Assert.Matches("smith.john.male.blue.12/25/1985",captureOut.ToString())
+    
+    
