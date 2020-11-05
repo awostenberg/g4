@@ -33,9 +33,10 @@ let rec readFiles inputs =
                                       
 let format (people: Person seq) = people |> Seq.map format
 
-let toConsole (title:string) (strings:string seq) =
-    Console.WriteLine(title)
-    strings |> Seq.iter (fun s -> System.Console.WriteLine(s) )
+let toConsole' out  (title:string) (strings:string seq) =
+    out title
+    strings |> Seq.iter out
+let toConsole title strings =  toConsole' (fun s -> printfn "%s" s) title strings
 
 let getInputs commands = commands
                          |> Seq.filter (fun (c:Command) -> c.isInput)
