@@ -39,8 +39,10 @@ let toConsole' out  (title:string) (strings:string seq) =
 let toConsole title strings =  toConsole' (fun s -> printfn "%s" s) title strings
 
 let getInputs commands = commands
-                         |> Seq.filter (fun (c:Command) -> c.isInput)
-                         |> Seq.map (fun item -> match item with (Input x) -> x)
+                         |> Seq.map (fun item -> match item with (Input x) -> Some x | _ -> None)
+                         |> Seq.filter (fun item -> item.IsSome)
+                         |> Seq.map (fun item -> item.Value)
+
 let run' (args:string[]) report =
 
     let usage() = printfn "console usage: --piped <inputfile> --comma <inputfile> --space <inputfile> --orderBy gender|birth|name"
