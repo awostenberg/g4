@@ -51,6 +51,9 @@ module Views =
         [
             partial()
             p [] [ encodedText model.Text ]
+            p [] [ a [ _href "/records/name" ] [ str "records/name" ] ]
+            p [] [ a [ _href "/records/birthdate" ] [ str "records/birthdate" ] ]
+            p [] [ a [ _href "/records/gender" ] [ str "records/gender" ] ] 
         ] |> layout
 
 // ---------------------------------
@@ -58,7 +61,7 @@ module Views =
 // ---------------------------------
 
 let indexHandler (name : string) =
-    let greetings = sprintf "Hello %s, from Giraffe!; try records/name|gender|birthdate" name
+    let greetings = sprintf "Hello %s, from Giraffe! " name
     let model     = {Text = greetings }
     let view      = Views.index model
     htmlView view
