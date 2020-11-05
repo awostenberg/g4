@@ -2,24 +2,24 @@ module g4.Console
 open Models
 open System
 
-type Command = ByName | ByBirth | ByGender
-type Inputs = {files:InputFormat list;error:string option;order:Command list}
+type Command = ByName | ByBirth | ByGender | Input of InputFormat | Error of string
+                member this.isInput  = match this with (Input _) -> true | _ -> false
 
 let toCommands args =
+
     //todo consider 3rd party parser http://fsprojects.github.io/Argu/
     let rec toCommands' accum args =
         match args with
-        |"--piped"::file::rest -> toCommands' {accum with files=Piped file::accum.files} rest
-        |"--comma"::file::rest -> toCommands' {accum with files=Comma file::accum.files} rest
-        |"--space"::file::rest -> toCommands' {accum with files=Space file::accum.files} rest
-        |"--orderBy"::"name"::rest -> toCommands' {accum with order=ByName::accum.order} rest
-        |"--orderBy"::"birth"::rest -> toCommands' {accum with order=ByBirth::accum.order} rest
-        |"--orderBy"::"gender"::rest -> toCommands' {accum with order=ByGender::accum.order} rest
-        |"--orderBy"::oops::_ -> { accum with error=Some (sprintf "Error: unknown --orderBy %s" oops)}         
         | [] -> accum
-        | oops::_ -> { accum with error=Some (sprintf "Error: unknown option %s" oops)}
-    let result = toCommands' {files=[];error=None;order=[]} args
-    {result with files=List.rev result.files;order=List.rev result.order}
+        |"--piped"::file::rest -> toCommands' (Input (Piped file)::accum) rest
+        |"--comma"::file::rest -> toCommands' (Input (Comma file)::accum) rest
+        |"--space"::file::rest -> toCommands' (Input (Space file)::accum) rest
+        |"--orderBy"::"name"::rest -> toCommands' (ByName::accum) rest
+        |"--orderBy"::"birth"::rest -> toCommands' (ByBirth::accum) rest
+        |"--orderBy"::"gender"::rest -> toCommands' (ByGender::accum) rest
+        |"--orderBy"::oops::_ -> [Error (sprintf "Error: unknown --orderBy %s" oops)]         
+        | oops::_ -> [Error (sprintf "Error: unknown option %s" oops)]
+    toCommands' List.empty args |> List.rev       
 
 let rec readFiles inputs =
 
@@ -37,19 +37,25 @@ let toConsole (title:string) (strings:string seq) =
     Console.WriteLine(title)
     strings |> Seq.iter (fun s -> System.Console.WriteLine(s) )
 
-let run (args:string[]) =
+let getInputs commands = commands
+                         |> Seq.filter (fun (c:Command) -> c.isInput)
+                         |> Seq.map (fun item -> match item with (Input x) -> x)
+let run' (args:string[]) report =
 
     let usage() = printfn "console usage: --piped <inputfile> --comma <inputfile> --space <inputfile> --orderBy gender|birth|name"
     let commands = args |> Seq.toList |> toCommands
-    match commands.error with
-    | Some e -> printfn "%s" e
-                usage()
-    | None -> let inputs = readFiles commands.files |> Seq.toList
-              let sortAndOutput item =
-                  match item with
-                  | ByName -> inputs |> orderByLastNameDescending |> format |> toConsole "by last name descending" 
-                  | ByBirth -> inputs |> orderByBirthDateAscending |> format |> toConsole "by birth date ascending"
-                  | ByGender -> inputs |> orderByGenderThenLastName |> format |> toConsole "by gender (females first) then last name"
-              commands.order |> List.iter sortAndOutput
+    let error = commands |> Seq.tryPick (fun x -> match x with Error msg -> Some msg | _ -> None)  
+    match error with
+    | Some msg -> printfn "%s" msg
+                  usage()
+    | None ->
+        let inputs = commands |> getInputs |> readFiles |> Seq.toList
+        let sortAndOutput item =
+          match item with
+          | ByName -> inputs |> orderByLastNameDescending |> format |> report "by last name descending" 
+          | ByBirth -> inputs |> orderByBirthDateAscending |> format |> report "by birth date ascending"
+          | ByGender -> inputs |> orderByGenderThenLastName |> format |> report "by gender (females first) then last name"
+          | _ -> ()
+        List.iter sortAndOutput commands        
 
-     
+let run (args:string[]) = run' args toConsole

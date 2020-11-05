@@ -159,69 +159,37 @@ let ``IO read multiple files``() =
              
                 
 
-[<Fact>]
-let ``cli parse --piped `` () =
 
-    let result = toCommands ["--piped";"foo.bar"]
-
-    Assert.Equal({files=[Piped "foo.bar"];error=None;order=[]},result)
-
-[<Fact>]
-let ``cli parse --comma `` () =
-
-    let result = toCommands ["--comma";"foo.comma"]
-
-    Assert.Equal({files=[Comma "foo.comma"];error=None;order=[]},result)
-[<Fact>]
-let ``cli parse --space `` () =
-
-    let result = toCommands ["--space";"foo.space"]
-
-    Assert.Equal({files=[Space "foo.space"];error=None;order=[]},result)
-[<Fact>]
-let ``cli parse multiple file inputs`` () =
+let ``cli parse input file types`` () =
 
     let result = toCommands ["--space";"foo.space";"--piped";"foo.pipe";"--comma";"foo.comma"]
 
-    Assert.Equal({files=[Space "foo.space";Piped "foo.pipe";Comma "foo.comma"];error=None;order=[]},result)
+    Assert.StrictEqual([Input (Space "foo.space");Input (Piped "foo.pipe");Input (Comma "foo.comma")],result)
+
 
 [<Fact>]
-let ``cli parse error - unknown option``() =
+let ``cli parse error: unknown option``() =
     let result = toCommands ["--oops"]
-    
-    Assert.True(result.error.IsSome)
+    Assert.StrictEqual([Error "Error: unknown option --oops"],result)
+
+//    let m = match result with [Error msg] -> msg
+//    Assert.Contains ("oops",m)
 
 [<Fact>]
 let ``cli parse error - unknown orderby``() =
-    let result = toCommands ["--orderBy";"whatever"]
-    
-    Assert.True(result.error.IsSome)
-    let msg = result.error.Value
-    Assert.Contains ("whatever",msg)    
+    let result = toCommands ["--orderBy";"whatever"]    
+
+    Assert.StrictEqual([Error "Error: unknown --orderBy whatever"],result)
+
+//    let m = match result with [Error msg] -> msg
+//    Assert.Contains ("whatever",m)    
 
 
-[<Fact>]
-let ``cli parse --orderBy name ``() =
-    let result = toCommands ["--orderBy";"name"]
-    
-    Assert.StrictEqual([ByName],result.order)
-
-[<Fact>]
-let ``cli parse --orderBy birth ``() =
-    let result = toCommands ["--orderBy";"birth"]
-    
-    Assert.StrictEqual([ByBirth],result.order)
-
-[<Fact>]
-let ``cli parse --orderBy gender ``() =
-    let result = toCommands ["--orderBy";"gender"]
-    
-    Assert.StrictEqual([ByGender],result.order)
 [<Fact>]
 let ``cli parse many --orderBy ``() =
     let result = toCommands ["--orderBy";"gender";"--orderBy";"birth";"--orderBy";"name"]
     
-    Assert.StrictEqual([ByGender;ByBirth;ByName],result.order)
+    Assert.StrictEqual([ByGender;ByBirth;ByName],result)
 
    
    
